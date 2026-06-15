@@ -101,9 +101,16 @@ describe('Familia 1 — Recepción de datos: validateCandidateData()', () => {
             const data = buildValidCandidate({ phone: '', address: '', cv: {} });
             expect(() => validateCandidateData(data)).not.toThrow();
         });
+    });
 
-        it('omite la validación cuando se recibe un id (modo edición)', () => {
-            // Con id presente el validador hace early-return aunque el resto sea basura.
+    // NOTA DE SEGURIDAD: `validateCandidateData` hace un early-return cuando recibe `id`,
+    // saltándose TODA la validación. Esto NO es un caso de alta válida: documenta el
+    // comportamiento actual del modo edición. Es un riesgo conocido (un payload de "alta"
+    // con `id` podría enrutar a `Candidate.save()` en modo update sin validar). Se deja
+    // como test de regresión, separado del bloque de alta y sin modificar el código de
+    // producción (fuera del alcance de este ejercicio de tests).
+    describe('comportamiento documentado: modo edición (id presente) — riesgo conocido', () => {
+        it('omite la validación cuando se recibe un id, aunque el resto del payload sea inválido', () => {
             expect(() => validateCandidateData({ id: 99, firstName: '' })).not.toThrow();
         });
     });
